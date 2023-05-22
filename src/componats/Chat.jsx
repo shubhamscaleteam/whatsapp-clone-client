@@ -18,6 +18,7 @@ import {
 import localStorage from "local-storage";
 import { CREATE_GROUP_MESSAGE, CREATE_MESSAGE } from "../graphQL/mutation";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 
 const Chat = () => {
   const { id } = useParams();
@@ -248,7 +249,7 @@ const Chat = () => {
                                 >
                                   <span className="messageHoverIcon">
                                     <IconButton>
-                                      <MoreVertIcon />
+                                      <ArrowDropDownIcon />
                                     </IconButton>
                                   </span>
 
