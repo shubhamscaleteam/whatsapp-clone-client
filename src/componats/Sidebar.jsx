@@ -109,13 +109,11 @@ const Sidebar = () => {
 
   const handaleValue = (e) => {
     if (e === "Logout") {
-      //   localStorage.clear("token");
       openDailog();
     }
 
     if (e === "New group") {
       userProfileOpen();
-      // console.log(allUserQuery?.data);
     }
 
     handleClose();
@@ -155,8 +153,6 @@ const Sidebar = () => {
           input: groupDetails,
         },
       });
-
-      console.log(groupDetails);
 
       setGroupMembername([]);
     }

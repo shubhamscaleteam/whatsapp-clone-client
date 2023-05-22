@@ -81,7 +81,6 @@ const Login = () => {
         },
       })
         .then((res) => {
-          // console.log("daadsadasd",data)
 
           if (data.user.id) {
             // *** set token to localStorage..!!

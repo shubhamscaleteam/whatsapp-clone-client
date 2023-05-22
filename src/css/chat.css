@@ -82,6 +82,7 @@ body {
 
 .chat_timestamp {
     margin-left: 10px;
+    margin-right: auto;
     padding-top: 10rem;
     font-size: xx-small;
     text-align: end;
@@ -139,6 +140,11 @@ body {
     padding: 10px;
     border: none;
     outline: none;
+}
+
+.groupUserName {
+  display: block;
+  font-size: x-small;
 }
 
 .chat_footer>form>button {

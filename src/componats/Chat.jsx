@@ -9,8 +9,12 @@ import { Avatar, IconButton } from "@mui/material";
 import "../css/chat.css";
 import { useParams } from "react-router-dom";
 import { useMutation, useQuery } from "@apollo/client";
-import { GET_ALL_MESSAGE, GET_USER_BY_ID, GROUP_BY_ID } from "../graphQL/query";
-// import { ToastContainer, Zoom, toast } from "react-toastify";
+import {
+  GET_ALL_MESSAGE,
+  GET_USER_BY_ID,
+  GROUP_ALl_MESSAGE,
+  GROUP_BY_ID,
+} from "../graphQL/query";
 import localStorage from "local-storage";
 import { CREATE_GROUP_MESSAGE, CREATE_MESSAGE } from "../graphQL/mutation";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -20,15 +24,15 @@ const Chat = () => {
 
   const scrollRef = useRef(null);
 
-  // const paramsId = id
-
   const userId = localStorage.get("loginUserId");
 
   const [addMessage] = useMutation(CREATE_MESSAGE, {
     refetchQueries: [GET_ALL_MESSAGE, "getAllMessage"],
   });
 
-  const [createGroupMessage] = useMutation(CREATE_GROUP_MESSAGE);
+  const [createGroupMessage] = useMutation(CREATE_GROUP_MESSAGE, {
+    refetchQueries: [GROUP_ALl_MESSAGE, "groupAllMessage"],
+  });
 
   const ref = useRef(null);
 
@@ -59,6 +63,15 @@ const Chat = () => {
           userId: userId,
           reciverId: id,
         },
+      },
+    }
+  );
+
+  const { loading: groupAllMessageLoading, data: groupAllMessage } = useQuery(
+    GROUP_ALl_MESSAGE,
+    {
+      variables: {
+        groupId: id,
       },
     }
   );
@@ -107,7 +120,6 @@ const Chat = () => {
 
       resetForm();
     } else {
-      // console.log(newgroupMessage)
       createGroupMessage({
         variables: {
           input: newgroupMessage,
@@ -124,7 +136,7 @@ const Chat = () => {
     }
   };
 
-  const groupedMessages = allMessageData?.userMessage.reduce((acc, message) => {
+  const userAllMessages = allMessageData?.userMessage.reduce((acc, message) => {
     const { createdAt } = message;
 
     const date = new Date(createdAt);
@@ -137,6 +149,23 @@ const Chat = () => {
 
     return acc;
   }, {});
+
+  const groupMessage = groupAllMessage?.groupAllMessage.reduce(
+    (acc, message) => {
+      const { createdAt } = message;
+
+      const date = new Date(createdAt);
+
+      const fullDate = date.toLocaleDateString("en-GB");
+
+      if (!acc[fullDate]) {
+        acc[fullDate] = message;
+      }
+
+      return acc;
+    },
+    {}
+  );
 
   return (
     <>
@@ -161,7 +190,6 @@ const Chat = () => {
 
             <div className="chat_headerInfo">
               {userByIdLoading ? (
-                // <h4>Loading..</h4>
                 ""
               ) : userByIdData !== undefined ? (
                 <div>{userByIdData?.userById?.userName}</div>
@@ -189,9 +217,9 @@ const Chat = () => {
           <div ref={scrollRef} className="chat_body">
             {allMessageLoading ? (
               <p></p>
-            ) : (
+            ) : userByIdData !== undefined ? (
               <div>
-                {Object.keys(groupedMessages).map((date, index) => {
+                {Object.keys(userAllMessages).map((date, index) => {
                   return (
                     <div key={index}>
                       <p className="message_date">{date}</p>
@@ -222,6 +250,53 @@ const Chat = () => {
                                   <span className="chat_timestamp">{`${currentHour} : ${currentMinute} ${
                                     currentHour <= 12 ? "Am" : "Pm"
                                   } `}</span>
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : groupAllMessageLoading ? (
+              <p></p>
+            ) : (
+              <div>
+                {Object.keys(groupMessage).map((date, index) => {
+                  return (
+                    <div key={index}>
+                      <p className="message_date">{date}</p>
+                      {groupAllMessage?.groupAllMessage
+                        .filter((elm) => {
+                          const DateOfMessage = new Date(
+                            elm.createdAt
+                          ).toLocaleDateString("en-GB");
+
+                          return DateOfMessage === date;
+                        })
+                        .map((elm, index) => {
+                          const TIME_AND_DATE = new Date(elm.createdAt);
+                          const currentHour = TIME_AND_DATE.getHours();
+                          const currentMinute = TIME_AND_DATE.getMinutes();
+
+                          return (
+                            <div key={index}>
+                              <div>
+                                <p
+                                  className={` ${
+                                    elm.userId.id === userId
+                                      ? "chat_reciever chat_message "
+                                      : "chat_message"
+                                  } `}
+                                >
+                                  <span className="groupUserName">
+                                    <span>{elm.userId.userName}</span>
+                                    <span className="chat_timestamp">{`${currentHour} : ${currentMinute} ${
+                                      currentHour <= 12 ? "Am" : "Pm"
+                                    } `}</span>
+                                  </span>
+                                  {elm.message}
                                 </p>
                               </div>
                             </div>

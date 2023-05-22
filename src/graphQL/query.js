@@ -84,3 +84,26 @@ export const GROUP_BY_ID = gql`
     }
   }
 `;
+
+// *** group all messsage
+
+export const GROUP_ALl_MESSAGE = gql`
+  query groupAllMessage($groupId: ID!) {
+    groupAllMessage(groupId: $groupId) {
+      message
+      userId {
+        id
+        userName
+      }
+      groupId {
+        id
+        userName
+        member {
+          id
+          email
+        }
+      }
+      createdAt
+    }
+  }
+`;
