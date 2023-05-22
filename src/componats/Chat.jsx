@@ -246,6 +246,12 @@ const Chat = () => {
                                       : "chat_message"
                                   } `}
                                 >
+                                  <span className="messageHoverIcon">
+                                    <IconButton>
+                                      <MoreVertIcon />
+                                    </IconButton>
+                                  </span>
+
                                   {elm.message}
                                   <span className="chat_timestamp">{`${currentHour} : ${currentMinute} ${
                                     currentHour <= 12 ? "Am" : "Pm"

@@ -142,6 +142,11 @@ body {
     outline: none;
 }
 
+.messageHoverIcon {
+    display: block;
+    margin-left:auto ;
+}
+
 .groupUserName {
   display: block;
   font-size: x-small;
