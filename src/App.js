@@ -1,24 +1,30 @@
-import logo from './logo.svg';
-import './App.css';
+import "bootstrap/dist/css/bootstrap.min.css";
+import "react-toastify/dist/ReactToastify.css";
+import "./App.css";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Wrapper from "./componats/Wrapper";
+import Login from "./componats/Login";
+import Register from "./componats/Register";
+import ErrorPage from "./componats/ErrorPage";
+// import Otp from './componats/Otp';
+import ForgotPassword from "./componats/ForgotPassword";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/chat" element={<Wrapper />} />
+          <Route path="/chat/:id" element={<Wrapper />} />
+          <Route path="/chat/:id/:id" element={<Wrapper />} />
+          <Route path="/forgotpassword" element={<ForgotPassword />} />
+          {/* <Route path="/verify" element={<Otp />} /> */}
+          <Route path="*" element={<ErrorPage />} />
+        </Routes>
+      </BrowserRouter>
+    </>
   );
 }
 

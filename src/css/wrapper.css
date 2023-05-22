@@ -1,0 +1,12 @@
+.wrapper_body {
+    display: flex;
+    background-color: #ededed;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    height: 90vh;
+    box-shadow: -1px 4px 20px -6px rgba(0, 0, 0, 0.2);
+    justify-content: space-between;
+  }
