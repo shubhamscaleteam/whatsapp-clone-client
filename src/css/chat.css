@@ -143,8 +143,11 @@ body {
 }
 
 .messageHoverIcon {
-    display: block;
-    margin-left:auto ;
+    display: none;
+}
+
+.chat_message_div :hover .messageHoverIcon {
+    display: inline-block;
 }
 
 .groupUserName {

@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   AttachFile,
   InsertEmoticon,
-  MicRounded,
   SearchOutlined,
 } from "@mui/icons-material";
 import { Avatar, IconButton } from "@mui/material";
@@ -12,13 +11,18 @@ import { useMutation, useQuery } from "@apollo/client";
 import {
   GET_ALL_MESSAGE,
   GET_USER_BY_ID,
-  GROUP_ALl_MESSAGE,
+  GROUP_ALL_MESSAGE,
   GROUP_BY_ID,
 } from "../graphQL/query";
 import localStorage from "local-storage";
-import { CREATE_GROUP_MESSAGE, CREATE_MESSAGE } from "../graphQL/mutation";
+import {
+  CREATE_GROUP_MESSAGE,
+  CREATE_MESSAGE,
+  DELETE_GROUP_MESSAGE,
+  DELETE_MESSAGE,
+} from "../graphQL/mutation";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const Chat = () => {
   const { id } = useParams();
@@ -27,12 +31,28 @@ const Chat = () => {
 
   const userId = localStorage.get("loginUserId");
 
+  // user messsage create
+
   const [addMessage] = useMutation(CREATE_MESSAGE, {
     refetchQueries: [GET_ALL_MESSAGE, "getAllMessage"],
   });
 
+  // group message create
+
   const [createGroupMessage] = useMutation(CREATE_GROUP_MESSAGE, {
-    refetchQueries: [GROUP_ALl_MESSAGE, "groupAllMessage"],
+    refetchQueries: [GROUP_ALL_MESSAGE, "groupAllMessage"],
+  });
+
+  //delete user message
+
+  const [deleteMessage] = useMutation(DELETE_MESSAGE, {
+    refetchQueries: [GET_ALL_MESSAGE, "UserMessage"],
+  });
+
+  //delete group message
+
+  const [deleteGroupMessage] = useMutation(DELETE_GROUP_MESSAGE, {
+    refetchQueries: [GROUP_ALL_MESSAGE, "groupAllMessage"],
   });
 
   const ref = useRef(null);
@@ -68,8 +88,9 @@ const Chat = () => {
     }
   );
 
+
   const { loading: groupAllMessageLoading, data: groupAllMessage } = useQuery(
-    GROUP_ALl_MESSAGE,
+    GROUP_ALL_MESSAGE,
     {
       variables: {
         groupId: id,
@@ -88,6 +109,8 @@ const Chat = () => {
     userId: "",
     groupId: "",
   });
+
+  const [selectedValuesofCheckbox, setSelectedValuesCheckbox] = useState([]);
 
   const getMessage = (e) => {
     if (userByIdData !== undefined) {
@@ -137,6 +160,49 @@ const Chat = () => {
     }
   };
 
+  // delete user Message
+
+  const handaleCheckbox = (e) => {
+    if (e.target.checked) {
+      setSelectedValuesCheckbox((preValue) => [...preValue, e.target.value]);
+    } else {
+      setSelectedValuesCheckbox((preValue) =>
+        preValue.splice(preValue.indexOf(e.target.value), 1)
+      );
+    }
+  };
+
+  // delete group Message
+
+  const deleteMessageFuncation = (e) => {
+    if (selectedValuesofCheckbox.length > 0) {
+      const confimMessage = window.confirm("Are you sure..?");
+      if (confimMessage) {
+        if (userByIdData !== undefined) {
+          deleteMessage({
+            variables: {
+              input: {
+                messageId: selectedValuesofCheckbox,
+              },
+            },
+          });
+          setSelectedValuesCheckbox([]);
+        } else {
+          deleteGroupMessage({
+            variables: {
+              input: {
+                messageId: selectedValuesofCheckbox,
+              },
+            },
+          });
+          setSelectedValuesCheckbox([]);
+        }
+      }
+    }
+  };
+
+  // remove same date from userMessage
+
   const userAllMessages = allMessageData?.userMessage.reduce((acc, message) => {
     const { createdAt } = message;
 
@@ -150,6 +216,8 @@ const Chat = () => {
 
     return acc;
   }, {});
+
+  // remove same date from groupMessage
 
   const groupMessage = groupAllMessage?.groupAllMessage.reduce(
     (acc, message) => {
@@ -226,11 +294,12 @@ const Chat = () => {
                       <p className="message_date">{date}</p>
                       {allMessageData?.userMessage
                         .filter((elm) => {
+
                           const DateOfMessage = new Date(
                             elm.createdAt
                           ).toLocaleDateString("en-GB");
 
-                          return DateOfMessage === date;
+                          return DateOfMessage === date ;
                         })
                         .map((elm, index) => {
                           const TIME_AND_DATE = new Date(elm.createdAt);
@@ -239,7 +308,7 @@ const Chat = () => {
 
                           return (
                             <div key={index}>
-                              <div>
+                              <div className="chat_message_div">
                                 <p
                                   className={` ${
                                     elm.userId.id === userId
@@ -247,11 +316,14 @@ const Chat = () => {
                                       : "chat_message"
                                   } `}
                                 >
-                                  <span className="messageHoverIcon">
-                                    <IconButton>
-                                      <ArrowDropDownIcon />
-                                    </IconButton>
-                                  </span>
+                                  <input
+                                    className="mb-2 d-block "
+                                    type="checkbox"
+                                    value={elm.id}
+                                    onChange={handaleCheckbox}
+                                  />
+
+                                  {console.log(elm)}
 
                                   {elm.message}
                                   <span className="chat_timestamp">{`${currentHour} : ${currentMinute} ${
@@ -303,6 +375,12 @@ const Chat = () => {
                                       currentHour <= 12 ? "Am" : "Pm"
                                     } `}</span>
                                   </span>
+                                  <input
+                                    className="mb-2 d-block "
+                                    type="checkbox"
+                                    value={elm.id}
+                                    onChange={handaleCheckbox}
+                                  />
                                   {elm.message}
                                 </p>
                               </div>
@@ -336,8 +414,8 @@ const Chat = () => {
               <button type="submit">Send a message</button>
             </form>
 
-            <IconButton className="iconMargin">
-              <MicRounded />
+            <IconButton onClick={deleteMessageFuncation} className="iconMargin">
+              <DeleteIcon />
             </IconButton>
           </div>
         </div>
