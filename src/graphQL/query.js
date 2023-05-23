@@ -31,10 +31,15 @@ export const GET_ALL_USER = gql`
   }
 `;
 
+// user message
+
 export const GET_ALL_MESSAGE = gql`
-  query getAllMessage($filter: filterData) {
+  query UserMessage($filter: filterData) {
     userMessage(filter: $filter) {
+      id
       message
+      createdAt
+      deleted
       reciverId {
         id
         userName
@@ -43,7 +48,6 @@ export const GET_ALL_MESSAGE = gql`
         id
         email
       }
-      createdAt
     }
   }
 `;
@@ -87,23 +91,22 @@ export const GROUP_BY_ID = gql`
 
 // *** group all messsage
 
-export const GROUP_ALl_MESSAGE = gql`
+export const GROUP_ALL_MESSAGE = gql`
   query groupAllMessage($groupId: ID!) {
     groupAllMessage(groupId: $groupId) {
+      id
       message
+      deleted
+      createdAt
       userId {
         id
         userName
       }
+
       groupId {
         id
         userName
-        member {
-          id
-          email
-        }
       }
-      createdAt
     }
   }
 `;

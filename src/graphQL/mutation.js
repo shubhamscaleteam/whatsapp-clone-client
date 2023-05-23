@@ -70,3 +70,21 @@ export const CREATE_GROUP_MESSAGE = gql`
     }
   }
 `;
+
+// delete user Message
+export const DELETE_MESSAGE = gql`
+  mutation DeleteMessage($input: inputDeleteMessage) {
+    deleteMessage(input: $input) {
+      info
+    }
+  }
+`;
+
+// delete group message
+export const DELETE_GROUP_MESSAGE = gql`
+  mutation DeleteGroupMessage($input: inputGroupDeleteMessage) {
+    deleteGroupMessage(input: $input) {
+      info
+    }
+  }
+`;
