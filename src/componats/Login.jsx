@@ -92,7 +92,7 @@ const Login = () => {
 
             localStorage.set("loginUserId", data.user.id);
 
-            navigate(`/chat/${data.user.id}`);
+            navigate(`/chat`);
           }
         })
         .catch((error) => {
