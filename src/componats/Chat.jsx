@@ -23,6 +23,7 @@ import {
 } from "../graphQL/mutation";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DoneAllIcon from "@mui/icons-material/DoneAll";
 
 const Chat = () => {
   const { id } = useParams();
@@ -87,7 +88,6 @@ const Chat = () => {
       },
     }
   );
-
 
   const { loading: groupAllMessageLoading, data: groupAllMessage } = useQuery(
     GROUP_ALL_MESSAGE,
@@ -294,12 +294,11 @@ const Chat = () => {
                       <p className="message_date">{date}</p>
                       {allMessageData?.userMessage
                         .filter((elm) => {
-
                           const DateOfMessage = new Date(
                             elm.createdAt
                           ).toLocaleDateString("en-GB");
 
-                          return DateOfMessage === date ;
+                          return DateOfMessage === date;
                         })
                         .map((elm, index) => {
                           const TIME_AND_DATE = new Date(elm.createdAt);
@@ -329,6 +328,14 @@ const Chat = () => {
                                   <span className="chat_timestamp">{`${currentHour} : ${currentMinute} ${
                                     currentHour <= 12 ? "Am" : "Pm"
                                   } `}</span>
+
+                                  {elm.userId.id === userId ? (
+                                    <span>
+                                      <DoneAllIcon color="primary" sx={{ width: 17, height: 20 }} />
+                                    </span>
+                                  ) : (
+                                    ""
+                                  )}
                                 </p>
                               </div>
                             </div>
