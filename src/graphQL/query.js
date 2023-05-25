@@ -40,6 +40,7 @@ export const GET_ALL_MESSAGE = gql`
       message
       createdAt
       deleted
+      isread
       reciverId {
         id
         userName
