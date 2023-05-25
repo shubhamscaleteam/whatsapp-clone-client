@@ -7,7 +7,7 @@ import {
 import { Avatar, IconButton } from "@mui/material";
 import "../css/chat.css";
 import { useParams } from "react-router-dom";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery, useSubscription } from "@apollo/client";
 import {
   GET_ALL_MESSAGE,
   GET_USER_BY_ID,
@@ -24,6 +24,13 @@ import {
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
+import {
+  CREATE_GROUP_MESSAGE_SUBSCRIPATION,
+  CREATE_MESSAGE_SUBCRIPTION,
+  DELETE_GROUP_MESSAGE_SUBSCRIPATION,
+  DELETE_MESSAGE_SUBSRIPTION,
+  READ_MESSAGE_SUBSCRIPATION,
+} from "../graphQL/subscription";
 
 const Chat = () => {
   const { id } = useParams();
@@ -32,34 +39,49 @@ const Chat = () => {
 
   const userId = localStorage.get("loginUserId");
 
-  // user messsage create
+  // *** user messsage create...!!
 
-  const [addMessage] = useMutation(CREATE_MESSAGE, {
-    refetchQueries: [GET_ALL_MESSAGE, "getAllMessage"],
-  });
+  const [addMessage] = useMutation(CREATE_MESSAGE);
 
-  // group message create
+  const { data: subcripationUserMessageData } = useSubscription(
+    CREATE_MESSAGE_SUBCRIPTION
+  );
 
-  const [createGroupMessage] = useMutation(CREATE_GROUP_MESSAGE, {
-    refetchQueries: [GROUP_ALL_MESSAGE, "groupAllMessage"],
-  });
-
-  //delete user message
+  // *** delete user message...!!
 
   const [deleteMessage] = useMutation(DELETE_MESSAGE, {
     refetchQueries: [GET_ALL_MESSAGE, "UserMessage"],
   });
 
-  //delete group message
+  const { data: deleteUserMessageSubsripation } = useSubscription(
+    DELETE_MESSAGE_SUBSRIPTION
+  );
+
+  // *** group message create...!!
+
+  const [createGroupMessage] = useMutation(CREATE_GROUP_MESSAGE, {
+    refetchQueries: [GROUP_ALL_MESSAGE, "groupAllMessage"],
+  });
+
+  const { data: groupMessageSubscripation } = useSubscription(
+    CREATE_GROUP_MESSAGE_SUBSCRIPATION
+  );
+
+  // *** delete group message...!!
 
   const [deleteGroupMessage] = useMutation(DELETE_GROUP_MESSAGE, {
     refetchQueries: [GROUP_ALL_MESSAGE, "groupAllMessage"],
   });
 
+  const { data: deleteGroupMessageSubscripation } = useSubscription(
+    DELETE_GROUP_MESSAGE_SUBSCRIPATION
+  );
+
   const ref = useRef(null);
 
+  // *** Scroll to the bottom when the component is mounted or updated...!!
+
   useEffect(() => {
-    // Scroll to the bottom when the component is mounted or updated
     scrollToBottom();
   });
 
@@ -77,26 +99,32 @@ const Chat = () => {
     },
   });
 
-  const { loading: allMessageLoading, data: allMessageData } = useQuery(
-    GET_ALL_MESSAGE,
-    {
-      variables: {
-        filter: {
-          userId: userId,
-          reciverId: id,
-        },
+  const {
+    loading: allMessageLoading,
+    refetch: userMessageRefetch,
+    data: allMessageData,
+  } = useQuery(GET_ALL_MESSAGE, {
+    variables: {
+      filter: {
+        userId: userId,
+        reciverId: id,
       },
-    }
+    },
+  });
+
+  const { data: readMessageSubscripation } = useSubscription(
+    READ_MESSAGE_SUBSCRIPATION
   );
 
-  const { loading: groupAllMessageLoading, data: groupAllMessage } = useQuery(
-    GROUP_ALL_MESSAGE,
-    {
-      variables: {
-        groupId: id,
-      },
-    }
-  );
+  const {
+    loading: groupAllMessageLoading,
+    refetch: groupMeesageRefetch,
+    data: groupAllMessage,
+  } = useQuery(GROUP_ALL_MESSAGE, {
+    variables: {
+      groupId: id,
+    },
+  });
 
   const [newMessage, setNewMessage] = useState({
     message: "",
@@ -111,6 +139,43 @@ const Chat = () => {
   });
 
   const [selectedValuesofCheckbox, setSelectedValuesCheckbox] = useState([]);
+
+  // *** subscripation for real-time update in user and group chat...!!
+
+  useEffect(() => {
+    if (subcripationUserMessageData?.messageCreated) {
+      userMessageRefetch();
+    }
+
+    if (deleteUserMessageSubsripation?.deleteMessage) {
+      userMessageRefetch();
+    }
+    // if (readMessageSubscripation?.) {
+    //   userMessageRefetch();
+    // }
+  }, [subcripationUserMessageData, deleteUserMessageSubsripation]);
+
+  useEffect(() => {
+    if (readMessageSubscripation?.readMessage) {
+      userMessageRefetch();
+    }
+  },[]);
+
+  console.log(
+    "🚀 ~ file: Chat.jsx:160 ~ useEffect ~ readMessageSubscripation:",
+    readMessageSubscripation
+  );
+  useEffect(() => {
+    if (groupMessageSubscripation?.groupMessageCreated) {
+      groupMeesageRefetch();
+    }
+
+    if (deleteGroupMessageSubscripation?.groupDeleteMessage) {
+      groupMeesageRefetch();
+    }
+  }, [groupMessageSubscripation, deleteGroupMessageSubscripation]);
+
+  // *** create user message and group message...!!
 
   const getMessage = (e) => {
     if (userByIdData !== undefined) {
@@ -127,6 +192,8 @@ const Chat = () => {
       });
     }
   };
+
+  // *** reset from on submit...!!
 
   const resetForm = () => {
     ref.current.value = "";
@@ -322,17 +389,26 @@ const Chat = () => {
                                     onChange={handaleCheckbox}
                                   />
 
-                                  {console.log(elm)}
-
                                   {elm.message}
                                   <span className="chat_timestamp">{`${currentHour} : ${currentMinute} ${
                                     currentHour <= 12 ? "Am" : "Pm"
                                   } `}</span>
 
                                   {elm.userId.id === userId ? (
-                                    <span>
-                                      <DoneAllIcon color="primary" sx={{ width: 17, height: 20 }} />
-                                    </span>
+                                    elm.isread ? (
+                                      <span>
+                                        <DoneAllIcon
+                                          color="primary"
+                                          sx={{ width: 17, height: 20 }}
+                                        />
+                                      </span>
+                                    ) : (
+                                      <span>
+                                        <DoneAllIcon
+                                          sx={{ width: 17, height: 20 }}
+                                        />
+                                      </span>
+                                    )
                                   ) : (
                                     ""
                                   )}
