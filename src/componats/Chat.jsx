@@ -123,6 +123,7 @@ const Chat = () => {
   } = useQuery(GROUP_ALL_MESSAGE, {
     variables: {
       groupId: id,
+      userId: userId,
     },
   });
 
@@ -159,12 +160,8 @@ const Chat = () => {
     if (readMessageSubscripation?.readMessage) {
       userMessageRefetch();
     }
-  },[]);
+  }, []);
 
-  console.log(
-    "🚀 ~ file: Chat.jsx:160 ~ useEffect ~ readMessageSubscripation:",
-    readMessageSubscripation
-  );
   useEffect(() => {
     if (groupMessageSubscripation?.groupMessageCreated) {
       groupMeesageRefetch();
@@ -239,7 +236,7 @@ const Chat = () => {
     }
   };
 
-  // delete group Message
+  // delete Message
 
   const deleteMessageFuncation = (e) => {
     if (selectedValuesofCheckbox.length > 0) {
@@ -250,6 +247,7 @@ const Chat = () => {
             variables: {
               input: {
                 messageId: selectedValuesofCheckbox,
+                deletedBy: userId,
               },
             },
           });
@@ -259,6 +257,7 @@ const Chat = () => {
             variables: {
               input: {
                 messageId: selectedValuesofCheckbox,
+                deletedBy: userId,
               },
             },
           });

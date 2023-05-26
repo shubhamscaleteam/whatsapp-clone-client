@@ -93,21 +93,32 @@ export const GROUP_BY_ID = gql`
 // *** group all messsage
 
 export const GROUP_ALL_MESSAGE = gql`
-  query groupAllMessage($groupId: ID!) {
-    groupAllMessage(groupId: $groupId) {
+  query Query($groupId: ID!, $userId: ID) {
+    groupAllMessage(groupId: $groupId, userId: $userId) {
       id
       message
+      groupId {
+        id
+        userName
+      }
       deleted
       createdAt
       userId {
         id
         userName
       }
+    }
+  }
+`;
 
-      groupId {
-        id
-        userName
-      }
+// *** forgot password
+
+export const FORGOT_PASSWORD = gql`
+  query ForgetPassword($email: String!) {
+    forgetPassword(email: $email) {
+      id
+      email
+      password
     }
   }
 `;
