@@ -2,11 +2,26 @@ import React, { useState } from "react";
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, Zoom, toast } from "react-toastify";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { FORGOT_PASSWORD } from "../graphQL/query";
 
 const ForgotPassword = () => {
   const [emailData, setEmailData] = useState("");
 
   const navigate = useNavigate();
+
+  // const { data: forgotPasswordData } = useLazyQuery(FORGOT_PASSWORD, {
+  //   variables: emailData,
+  // });
+
+  // const { data: forgotPasswordData } = useQuery(FORGOT_PASSWORD, {
+  //   fetchPolicy: "cache-and-network",
+  //   variables: {
+  //     emailData,
+  //   },
+  // });
+
+  const [forgotPasswordValue] = useMutation(FORGOT_PASSWORD);
 
   const notifyInfo = (e) => toast.info(e);
 
@@ -16,6 +31,12 @@ const ForgotPassword = () => {
 
   const getSubmitData = (e) => {
     e.preventDefault();
+
+    forgotPasswordValue({
+      variables: {
+        email: emailData,
+      },
+    });
 
     notifyInfo("Open your email to reset new password..!!");
 
