@@ -146,13 +146,14 @@ body {
     display: none;
 }
 
-.chat_message_div :hover .messageHoverIcon {
-    display: inline-block;
+.shareIcon {
+
+    margin-left: auto;
 }
 
 .groupUserName {
-  display: block;
-  font-size: x-small;
+    display: block;
+    font-size: x-small;
 }
 
 .chat_footer>form>button {
@@ -187,4 +188,10 @@ body {
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
     background: #555;
+}
+
+.forwardMessageBtn {
+    border: 1px solid;
+    height: 50%;
+    border-radius: 50%;
 }

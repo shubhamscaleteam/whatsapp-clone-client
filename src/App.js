@@ -8,7 +8,8 @@ import Register from "./componats/Register";
 import ErrorPage from "./componats/ErrorPage";
 // import Otp from './componats/Otp';
 import ForgotPassword from "./componats/ForgotPassword";
-
+import NewPassword from "./componats/NewPassword";
+  
 function App() {
   return (
     <>
@@ -20,6 +21,7 @@ function App() {
           <Route path="/chat/:id" element={<Wrapper />} />
           <Route path="/chat/:id/:id" element={<Wrapper />} />
           <Route path="/forgotpassword" element={<ForgotPassword />} />
+          <Route path="/newpassword" element={<NewPassword />} />
           {/* <Route path="/verify" element={<Otp />} /> */}
           <Route path="*" element={<ErrorPage />} />
         </Routes>
