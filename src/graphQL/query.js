@@ -114,7 +114,7 @@ export const GROUP_ALL_MESSAGE = gql`
 // *** forgot password
 
 export const FORGOT_PASSWORD = gql`
-  query ForgetPassword($email: String!) {
+  mutation ForgetPassword($email: String!) {
     forgetPassword(email: $email) {
       id
       email

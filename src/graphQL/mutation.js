@@ -88,3 +88,15 @@ export const DELETE_GROUP_MESSAGE = gql`
     }
   }
 `;
+
+// new password
+
+export const NEW_PASSWORD = gql`
+  mutation NewPassword($token: String, $input: inputNewPassword) {
+    newPassword(token: $token, input: $input) {
+      id
+      email
+      password
+    }
+  }
+`;

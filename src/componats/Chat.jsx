@@ -10,9 +10,11 @@ import { useParams } from "react-router-dom";
 import { useMutation, useQuery, useSubscription } from "@apollo/client";
 import {
   GET_ALL_MESSAGE,
+  GET_ALL_USER,
   GET_USER_BY_ID,
   GROUP_ALL_MESSAGE,
   GROUP_BY_ID,
+  USER_GROUP,
 } from "../graphQL/query";
 import localStorage from "local-storage";
 import {
@@ -24,6 +26,8 @@ import {
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
+import ReplyIcon from "@mui/icons-material/Reply";
+import SendIcon from "@mui/icons-material/Send";
 import {
   CREATE_GROUP_MESSAGE_SUBSCRIPATION,
   CREATE_MESSAGE_SUBCRIPTION,
@@ -31,6 +35,8 @@ import {
   DELETE_MESSAGE_SUBSRIPTION,
   READ_MESSAGE_SUBSCRIPATION,
 } from "../graphQL/subscription";
+import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
 
 const Chat = () => {
   const { id } = useParams();
@@ -85,6 +91,8 @@ const Chat = () => {
     scrollToBottom();
   });
 
+  // *** Get user by id...!!
+
   const { data: userByIdData, loading: userByIdLoading } = useQuery(
     GET_USER_BY_ID,
     {
@@ -93,11 +101,16 @@ const Chat = () => {
       },
     }
   );
+
+  // *** get group by id...!!
+
   const { data: groupbyIdData } = useQuery(GROUP_BY_ID, {
     variables: {
       groupId: id,
     },
   });
+
+  // *** get all message...!!
 
   const {
     loading: allMessageLoading,
@@ -109,6 +122,18 @@ const Chat = () => {
         userId: userId,
         reciverId: id,
       },
+    },
+  });
+
+  // ***get all user...!!
+
+  const { data: allUserData, loading: allUserLoading } = useQuery(GET_ALL_USER);
+
+  // ***get all user group...!!
+
+  const { data: groupData, loading: groupLoading } = useQuery(USER_GROUP, {
+    variables: {
+      userId: userId,
     },
   });
 
@@ -141,6 +166,8 @@ const Chat = () => {
 
   const [selectedValuesofCheckbox, setSelectedValuesCheckbox] = useState([]);
 
+  const [selectedValuesofForward, setSelectedValuesForward] = useState([]);
+
   // *** subscripation for real-time update in user and group chat...!!
 
   useEffect(() => {
@@ -151,9 +178,6 @@ const Chat = () => {
     if (deleteUserMessageSubsripation?.deleteMessage) {
       userMessageRefetch();
     }
-    // if (readMessageSubscripation?.) {
-    //   userMessageRefetch();
-    // }
   }, [subcripationUserMessageData, deleteUserMessageSubsripation]);
 
   useEffect(() => {
@@ -188,6 +212,18 @@ const Chat = () => {
         groupId: id,
       });
     }
+  };
+
+  // Share message button model
+
+  const [modelShow, setModelShow] = useState(false);
+
+  const modelHandleClose = () => setModelShow(false);
+  const modelHandleShow = () => setModelShow(true);
+
+  const valueOfChat = (e) => {
+    console.log(e);
+    modelHandleShow();
   };
 
   // *** reset from on submit...!!
@@ -235,6 +271,7 @@ const Chat = () => {
       );
     }
   };
+  
 
   // delete Message
 
@@ -264,6 +301,18 @@ const Chat = () => {
           setSelectedValuesCheckbox([]);
         }
       }
+    }
+  };
+
+  //***forward message...!!
+
+  const forwardMessage = (e) => {
+    if (e.target.checked) {
+      setSelectedValuesForward((preValue) => [...preValue, e.target.value]);
+    } else {
+      setSelectedValuesForward((preValue) =>
+        preValue.splice(preValue.indexOf(e.target.value), 1)
+      );
     }
   };
 
@@ -372,8 +421,19 @@ const Chat = () => {
                           const currentMinute = TIME_AND_DATE.getMinutes();
 
                           return (
-                            <div key={index}>
-                              <div className="chat_message_div">
+                            <div key={index} className="d-flex">
+                              <span
+                                className={`${
+                                  elm.userId.id === userId
+                                    ? "shareIcon d-flex justify-content-end"
+                                    : ""
+                                }`}
+                              >
+                                <ReplyIcon
+                                  onClick={() => valueOfChat(elm.id)}
+                                />
+                              </span>
+                              <div className="d-flex">
                                 <p
                                   className={` ${
                                     elm.userId.id === userId
@@ -504,6 +564,72 @@ const Chat = () => {
       ) : (
         <div></div>
       )}
+
+      <div>
+        <Modal
+          show={modelShow}
+          scrollable={true}
+          onHide={modelHandleClose}
+          backdrop="static"
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Forward message to</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {allUserLoading ? (
+              "loading"
+            ) : (
+              <div>
+                {allUserData?.allUser?.map((elm, index) => {
+                  return (
+                    <div key={index} className="userData">
+                      <input type="checkbox" className="me-4" />
+                      <div className="userProfile">
+                        {" "}
+                        <Avatar
+                          src={`https://avatars.dicebear.com/api/open-peeps/${elm.userName}.svg`}
+                        />
+                      </div>
+                      <div>{elm.userName}</div>
+                    </div>
+                  );
+                })}
+
+                {groupLoading ? (
+                  "loading"
+                ) : (
+                  <div>
+                    {groupData?.userAllGroup?.map((elm, index) => {
+                      return (
+                        <div key={index} className="userData">
+                          <input type="checkbox" className="me-4" />
+
+                          <div className="userProfile">
+                            {" "}
+                            <Avatar
+                              src={`https://avatars.dicebear.com/api/open-peeps/${elm.userName}.svg`}
+                            />
+                          </div>
+                          <div>{elm.userName}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button
+              variant="success"
+              className="forwardMessageBtn"
+              onClick={modelHandleClose}
+            >
+              <SendIcon />
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      </div>
     </>
   );
 };
