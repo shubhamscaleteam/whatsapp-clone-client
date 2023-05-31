@@ -23,10 +23,11 @@ export const GET_USER_BY_ID = gql`
 `;
 
 export const GET_ALL_USER = gql`
-  query getAllUser {
+  query Query {
     allUser {
-      userName
       id
+      userName
+      profilePicture
     }
   }
 `;

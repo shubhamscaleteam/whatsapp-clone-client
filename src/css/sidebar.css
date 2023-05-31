@@ -67,8 +67,8 @@
     background-color: rgb(38, 128, 104);
     color: white;
     display: flex;
-    justify-content: start !important;
-    align-items: end;
+    justify-content: flex-start !important;
+    align-items: flex-end;
     padding: 10px 10px;
 }
 
@@ -115,6 +115,6 @@
     border: none;
 }
 
-offcanvasLink {
+.offcanvasLink {
     text-decoration: none;
 } 
