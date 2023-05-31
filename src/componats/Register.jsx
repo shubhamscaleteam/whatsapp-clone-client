@@ -11,7 +11,7 @@ import { Button } from "@mui/material";
 
 // *** Imported from react-router-dom..!!
 
-import { Link, useNavigate } from "react-router-dom";
+import { Link, json, useNavigate } from "react-router-dom";
 
 // *** Imported from apollo/client..!!
 
@@ -27,6 +27,7 @@ const Register = () => {
     phoneno: null,
     email: "",
     password: "",
+    profilePicture: null,
   });
 
   const navigate = useNavigate();
@@ -51,6 +52,24 @@ const Register = () => {
     });
   };
 
+  const converTobase64 = (e) => {
+    let reader = new FileReader();
+
+    reader.readAsDataURL(e.target.files[0]);
+
+    reader.onload = () => {
+      const stringData = JSON.stringify(reader.result);
+      setRegisterDetails({
+        ...registerDetails,
+        profilePicture: stringData,
+      });
+    };
+
+    reader.onerror = (error) => {
+      console.log(error);
+    };
+  };
+
   if (loading) {
     notifyInfo("Loading..🚀");
   }
@@ -63,6 +82,8 @@ const Register = () => {
     e.preventDefault();
 
     // ***validate input field so they can't be empty..!!
+
+    console.log(registerDetails); 
 
     if (registerDetails.userName.length === 0) {
       notify("userName can't be empty..!!");
@@ -143,6 +164,16 @@ const Register = () => {
               autoComplete="off"
               ref={ref}
               onChange={getValues}
+            />
+            <label>Password</label>
+          </div>
+          <div className="user-box">
+            <input
+              type="file"
+              name="image"
+              autoComplete="off"
+              ref={ref}
+              onChange={converTobase64}
             />
             <label>Password</label>
           </div>

@@ -50,6 +50,8 @@ const Sidebar = () => {
 
   const allUserQuery = useQuery(GET_ALL_USER);
 
+  
+
   const [groupDetails, setGroupDetails] = useState({
     userName: "",
     creator: userId,
