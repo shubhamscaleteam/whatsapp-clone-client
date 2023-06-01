@@ -24,17 +24,16 @@ import { useMutation, useQuery } from "@apollo/client";
 import { GET_ALL_USER, GET_USER_BY_ID, USER_GROUP } from "../graphQL/query";
 import localStorage from "local-storage";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-
 import Offcanvas from "react-bootstrap/Offcanvas";
-import { CREATE_GROUP } from "../graphQL/mutation";
+import { CREATE_GROUP, UPDATE_USER_PROFILE } from "../graphQL/mutation";
+import Modal from "react-bootstrap/Modal";
+import ModeEditIcon from "@mui/icons-material/ModeEdit";
 
 const Sidebar = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [openDailogbox, setOpenDailogbox] = useState(false);
 
   const navigate = useNavigate();
-
-  // const { id } = useParams();
 
   const userId = localStorage.get("loginUserId");
 
@@ -50,8 +49,6 @@ const Sidebar = () => {
 
   const allUserQuery = useQuery(GET_ALL_USER);
 
-  
-
   const [groupDetails, setGroupDetails] = useState({
     userName: "",
     creator: userId,
@@ -60,11 +57,17 @@ const Sidebar = () => {
 
   const [groupMembername, setGroupMembername] = useState([]);
 
+  const [updateUserProfile, setUpdateUserProfile] = useState({
+    id: "",
+    userName: "",
+    profilePicture: "",
+  });
+
+  const [newProfile] = useMutation(UPDATE_USER_PROFILE);
+
   const [groupOfmember] = useMutation(CREATE_GROUP, {
     refetchQueries: [USER_GROUP, "UserAllGroup"],
   });
-
-  const userName = data ? data.userById.userName : "";
 
   //*** open dropdown on 3 dots...!!
   const open = Boolean(anchorEl);
@@ -97,7 +100,7 @@ const Sidebar = () => {
     navigate("/");
   };
 
-  // *** open-close useProfile
+  // *** open-close group
 
   const [show, setShow] = useState(false);
 
@@ -106,6 +109,13 @@ const Sidebar = () => {
   const userProfileOpen = () => {
     setShow(true);
   };
+
+  //*** open-close model */
+
+  const [modelshow, setModelShow] = useState(false);
+
+  const modelhandleClose = () => setModelShow(false);
+  const modelhandleShow = () => setModelShow(true);
 
   //*** on logout button click logout user...!!
 
@@ -160,6 +170,45 @@ const Sidebar = () => {
     }
   };
 
+  const updateProfile = (e) => {
+    setUpdateUserProfile({
+      ...updateUserProfile,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const convertTobase64 = (e) => {
+    if (updateUserProfile.profilePicture !== null) {
+      let reader = new FileReader();
+
+      reader.readAsDataURL(e.target.files[0]);
+
+      reader.onload = () => {
+        setUpdateUserProfile({
+          ...updateUserProfile,
+          id: userId,
+          profilePicture: reader.result,
+        });
+      };
+
+      reader.onerror = (error) => {
+        console.log(error);
+      };
+    }
+  };
+
+  const updateProfileSubmit = (e) => {
+    e.preventDefault();
+
+    newProfile({
+      variables: {
+        input: updateUserProfile,
+      },
+    });
+
+    modelhandleClose();
+  };
+
   const options = [
     { value: "New group" },
     { value: "New Community" },
@@ -175,12 +224,12 @@ const Sidebar = () => {
         {loading ? (
           <Avatar />
         ) : (
-          <IconButton onClick={userProfileOpen}>
-            <Avatar
-              className="userProfile"
-              src={`https://avatars.dicebear.com/api/open-peeps/${userName}.svg`}
-            />
-          </IconButton>
+          <img
+            alt="userProfileImage"
+            className="userProfileImage"
+            src={data?.userById?.profilePicture}
+            onClick={modelhandleShow}
+          />
         )}
 
         <div className="sidebar_headerRight">
@@ -301,7 +350,7 @@ const Sidebar = () => {
             {allUserQuery.loading ? (
               "loading"
             ) : (
-              <Link>
+              <Link className="groupDiv">
                 {allUserQuery?.data?.allUser.map((elm, index) => {
                   return (
                     <div
@@ -311,11 +360,13 @@ const Sidebar = () => {
                     >
                       <div className="userProfile">
                         {" "}
-                        <Avatar
-                          src={`https://avatars.dicebear.com/api/open-peeps/${elm.userName}.svg`}
+                        <img
+                          alt="userProfilePicture"
+                          className="userProfileImage"
+                          src={elm.profilePicture}
                         />
                       </div>
-                      <div>{elm.userName}</div>
+                      <div className="mt-2">{elm.userName}</div>
                     </div>
                   );
                 })}
@@ -338,6 +389,51 @@ const Sidebar = () => {
           </div>
         </Offcanvas.Body>
       </Offcanvas>
+
+      <Modal
+        show={modelshow}
+        onHide={modelhandleClose}
+        backdrop="static"
+        centered
+      >
+        <Modal.Header className="modelUserProfile" closeButton>
+          <Modal.Title>User profile</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="modelUserProfile">
+          {loading ? (
+            <Avatar />
+          ) : (
+            <>
+              <img
+                alt="userProfileImage"
+                className="userProfileImageMain"
+                src={data?.userById?.profilePicture}
+              />
+              <form action="" onSubmit={updateProfileSubmit}>
+                <input type="file" onChange={convertTobase64} />
+                <div className="modelIconAndName">
+                  <div className="profileName">Your Name</div>
+                  <span className="modelName">
+                    <input
+                      defaultValue={data?.userById?.userName}
+                      name="userName"
+                      onChange={updateProfile}
+                    ></input>
+                  </span>
+                  <span className="ms-5">
+                    <ModeEditIcon />
+                  </span>
+                </div>
+
+                <Button type="submit" variant="primary">
+                  Save Changes
+                </Button>
+              </form>
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer className="modelUserProfile"></Modal.Footer>
+      </Modal>
     </div>
   );
 };

@@ -11,7 +11,7 @@ import { Button } from "@mui/material";
 
 // *** Imported from react-router-dom..!!
 
-import { Link, json, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // *** Imported from apollo/client..!!
 
@@ -58,10 +58,9 @@ const Register = () => {
     reader.readAsDataURL(e.target.files[0]);
 
     reader.onload = () => {
-      const stringData = JSON.stringify(reader.result);
       setRegisterDetails({
         ...registerDetails,
-        profilePicture: stringData,
+        profilePicture: reader.result,
       });
     };
 
@@ -83,7 +82,6 @@ const Register = () => {
 
     // ***validate input field so they can't be empty..!!
 
-    console.log(registerDetails); 
 
     if (registerDetails.userName.length === 0) {
       notify("userName can't be empty..!!");

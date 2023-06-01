@@ -37,6 +37,7 @@ import {
 } from "../graphQL/subscription";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
+import withOutchat from "../assets/images/withoutchat.jpg";
 
 const Chat = () => {
   const { id } = useParams();
@@ -271,7 +272,6 @@ const Chat = () => {
       );
     }
   };
-  
 
   // delete Message
 
@@ -359,10 +359,11 @@ const Chat = () => {
             {userByIdLoading ? (
               <Avatar sx={{ width: 50, height: 50 }} />
             ) : userByIdData !== undefined ? (
-              <Avatar
+              <img
                 sx={{ width: 50, height: 50 }}
-                className="chatUserIcon"
-                src={`https://avatars.dicebear.com/api/open-peeps/${userByIdData?.userById?.userName}.svg`}
+                alt="userProfilePicture"
+                className="chatUserIcon userProfileImage"
+                src={userByIdData?.userById?.profilePicture}
               />
             ) : (
               <Avatar
@@ -562,7 +563,9 @@ const Chat = () => {
           </div>
         </div>
       ) : (
-        <div></div>
+        <div className="withoutChat">
+          <img src={withOutchat} alt="" />
+        </div>
       )}
 
       <div>
@@ -586,8 +589,10 @@ const Chat = () => {
                       <input type="checkbox" className="me-4" />
                       <div className="userProfile">
                         {" "}
-                        <Avatar
-                          src={`https://avatars.dicebear.com/api/open-peeps/${elm.userName}.svg`}
+                        <img
+                          alt="userProfile"
+                          className="userProfileImage"
+                          src={elm.profilePicture}
                         />
                       </div>
                       <div>{elm.userName}</div>

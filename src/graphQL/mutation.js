@@ -3,15 +3,15 @@ import { gql } from "@apollo/client";
 // ***registerUser
 
 export const REGISTER_USER = gql`
- mutation Mutation($input: inputRegister!) {
-  registerUser(input: $input) {
-    userName
-    profilePicture
-    phoneno
-    id
-    email
+  mutation Mutation($input: inputRegister!) {
+    registerUser(input: $input) {
+      userName
+      profilePicture
+      phoneno
+      id
+      email
+    }
   }
-}
 `;
 
 // ***loginUser
@@ -99,6 +99,16 @@ export const NEW_PASSWORD = gql`
       id
       email
       password
+    }
+  }
+`;
+
+// updateprofile
+
+export const UPDATE_USER_PROFILE = gql`
+  mutation Mutation($input: updateProfile) {
+    updateUserProfile(input: $input) {
+      id
     }
   }
 `;

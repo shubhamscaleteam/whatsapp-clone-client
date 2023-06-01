@@ -5,8 +5,8 @@ export const GET_USER_BY_EMAIL = gql`
     user(email: $email) {
       id
       email
-      phoneno
       userName
+      profilePicture
     }
   }
 `;
@@ -14,10 +14,9 @@ export const GET_USER_BY_EMAIL = gql`
 export const GET_USER_BY_ID = gql`
   query getUserById($userById: ID!) {
     userById(id: $userById) {
-      email
       id
-      phoneno
       userName
+      profilePicture
     }
   }
 `;
