@@ -195,3 +195,7 @@ body {
     height: 50%;
     border-radius: 50%;
 }
+
+.withoutChat {
+    display: flex;
+}

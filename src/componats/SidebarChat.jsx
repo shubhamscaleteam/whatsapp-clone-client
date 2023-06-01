@@ -23,8 +23,6 @@ const SidebarChat = () => {
     },
   });
 
-  
-
   return (
     <div className="sidebarChat">
       {allUserLoading ? (
@@ -40,8 +38,10 @@ const SidebarChat = () => {
               >
                 <div className="userProfile">
                   {" "}
-                  <Avatar
-                    src={`https://avatars.dicebear.com/api/open-peeps/${elm.userName}.svg`}
+                  <img
+                    alt="userProfilePicture"
+                    className="userProfileImage"
+                    src={elm.profilePicture}
                   />
                 </div>
                 <div>{elm.userName}</div>
