@@ -82,7 +82,6 @@ const Register = () => {
 
     // ***validate input field so they can't be empty..!!
 
-
     if (registerDetails.userName.length === 0) {
       notify("userName can't be empty..!!");
     } else if (registerDetails.phoneno === null) {
@@ -91,6 +90,8 @@ const Register = () => {
       notify("email can't be empty..!!");
     } else if (registerDetails.password.length === 0) {
       notify("password can't be empty..!!");
+    } else if (registerDetails.profilePicture === null) {
+      notify("choose profile picture..!!");
     } else {
       registerdata({
         variables: {
@@ -173,7 +174,7 @@ const Register = () => {
               ref={ref}
               onChange={converTobase64}
             />
-            <label>Password</label>
+            <label>Profile picture</label>
           </div>
           <Link to="/" className="linkTag">
             Already have an account? Login

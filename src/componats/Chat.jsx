@@ -223,7 +223,6 @@ const Chat = () => {
   const modelHandleShow = () => setModelShow(true);
 
   const valueOfChat = (e) => {
-    console.log(e);
     modelHandleShow();
   };
 
@@ -512,6 +511,7 @@ const Chat = () => {
                                       : "chat_message"
                                   } `}
                                 >
+                                  {console.log(elm.userId)}
                                   <span className="groupUserName">
                                     <span>{elm.userId.userName}</span>
                                     <span className="chat_timestamp">{`${currentHour} : ${currentMinute} ${
@@ -563,8 +563,8 @@ const Chat = () => {
           </div>
         </div>
       ) : (
-        <div className="withoutChat">
-          <img src={withOutchat} alt="" />
+        <div className="chat d-flex justify-content-center align-content-center">
+           <h1>Click on user to chat</h1>
         </div>
       )}
 
