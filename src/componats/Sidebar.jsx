@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 //*** Custome imported files */
 import SidebarChat from "./SidebarChat";
@@ -20,7 +20,7 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery, useSubscription } from "@apollo/client";
 import { GET_ALL_USER, GET_USER_BY_ID, USER_GROUP } from "../graphQL/query";
 import localStorage from "local-storage";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -28,6 +28,7 @@ import Offcanvas from "react-bootstrap/Offcanvas";
 import { CREATE_GROUP, UPDATE_USER_PROFILE } from "../graphQL/mutation";
 import Modal from "react-bootstrap/Modal";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
+import { UPDATE_USER_SUBSCRIPATION } from "../graphQL/subscription";
 
 const Sidebar = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -41,13 +42,19 @@ const Sidebar = () => {
     navigate("/");
   }
 
-  const { data, loading } = useQuery(GET_USER_BY_ID, {
+  const {
+    data,
+    loading,
+    refetch: updateRefetch,
+  } = useQuery(GET_USER_BY_ID, {
     variables: {
       userById: userId,
     },
   });
 
-  const allUserQuery = useQuery(GET_ALL_USER);
+  const allUserQuery = useQuery(GET_ALL_USER, {
+    refetch: updateRefetch,
+  });
 
   const [groupDetails, setGroupDetails] = useState({
     userName: "",
@@ -68,6 +75,10 @@ const Sidebar = () => {
   const [groupOfmember] = useMutation(CREATE_GROUP, {
     refetchQueries: [USER_GROUP, "UserAllGroup"],
   });
+
+  const { data: updateUserProfileSubscripation } = useSubscription(
+    UPDATE_USER_SUBSCRIPATION
+  );
 
   //*** open dropdown on 3 dots...!!
   const open = Boolean(anchorEl);
@@ -173,6 +184,7 @@ const Sidebar = () => {
   const updateProfile = (e) => {
     setUpdateUserProfile({
       ...updateUserProfile,
+      id: userId,
       [e.target.name]: e.target.value,
     });
   };
@@ -200,14 +212,24 @@ const Sidebar = () => {
   const updateProfileSubmit = (e) => {
     e.preventDefault();
 
-    newProfile({
-      variables: {
-        input: updateUserProfile,
-      },
-    });
+    if (updateUserProfile.id) {
+      newProfile({
+        variables: {
+          input: updateUserProfile,
+        },
+      });
 
-    modelhandleClose();
+      modelhandleClose();
+    }
   };
+
+  useEffect(() => {
+    console.log();
+
+    if (updateUserProfileSubscripation?.updateUserProfile) {
+      updateRefetch();
+    }
+  }, [updateUserProfileSubscripation]);
 
   const options = [
     { value: "New group" },
@@ -410,7 +432,6 @@ const Sidebar = () => {
                 src={data?.userById?.profilePicture}
               />
               <form action="" onSubmit={updateProfileSubmit}>
-                <input type="file" onChange={convertTobase64} />
                 <div className="modelIconAndName">
                   <div className="profileName">Your Name</div>
                   <span className="modelName">
@@ -424,8 +445,11 @@ const Sidebar = () => {
                     <ModeEditIcon />
                   </span>
                 </div>
+                <input type="file" onChange={convertTobase64} />
+                <br />
+                <br />
 
-                <Button type="submit" variant="primary">
+                <Button type="submit" variant="outlined" color="success">
                   Save Changes
                 </Button>
               </form>

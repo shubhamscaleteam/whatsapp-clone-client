@@ -52,3 +52,13 @@ export const READ_MESSAGE_SUBSCRIPATION = gql`
     }
   }
 `;
+
+export const UPDATE_USER_SUBSCRIPATION = gql`
+  subscription Subscription {
+    updateUserProfile {
+      id
+      profilePicture
+      userName
+    }
+  }
+`;
