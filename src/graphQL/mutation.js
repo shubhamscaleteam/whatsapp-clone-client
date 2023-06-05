@@ -68,7 +68,7 @@ export const CREATE_GROUP_MESSAGE = gql`
     createGroupMessage(input: $input) {
       userId
       message
-      groupId
+      reciverId
     }
   }
 `;
@@ -109,6 +109,16 @@ export const UPDATE_USER_PROFILE = gql`
   mutation Mutation($input: updateProfile) {
     updateUserProfile(input: $input) {
       id
+    }
+  }
+`;
+
+// forward message
+
+export const FORWARD_MESSAGE = gql`
+  mutation Mutation($input: ForwardMessage) {
+    forwardMessage(input: $input) {
+      info
     }
   }
 `;

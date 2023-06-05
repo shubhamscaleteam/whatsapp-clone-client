@@ -7,13 +7,19 @@ import {
 import { Avatar, IconButton } from "@mui/material";
 import "../css/chat.css";
 import { useParams } from "react-router-dom";
-import { useMutation, useQuery, useSubscription } from "@apollo/client";
+import {
+  useLazyQuery,
+  useMutation,
+  useQuery,
+  useSubscription,
+} from "@apollo/client";
 import {
   GET_ALL_MESSAGE,
   GET_ALL_USER,
   GET_USER_BY_ID,
   GROUP_ALL_MESSAGE,
   GROUP_BY_ID,
+  USER_AND_GROUP_SINGLE_MESSAGE,
   USER_GROUP,
 } from "../graphQL/query";
 import localStorage from "local-storage";
@@ -37,7 +43,6 @@ import {
 } from "../graphQL/subscription";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
-import withOutchat from "../assets/images/withoutchat.jpg";
 
 const Chat = () => {
   const { id } = useParams();
@@ -107,7 +112,7 @@ const Chat = () => {
 
   const { data: groupbyIdData } = useQuery(GROUP_BY_ID, {
     variables: {
-      groupId: id,
+      reciverId: id,
     },
   });
 
@@ -148,7 +153,7 @@ const Chat = () => {
     data: groupAllMessage,
   } = useQuery(GROUP_ALL_MESSAGE, {
     variables: {
-      groupId: id,
+      reciverId: id,
       userId: userId,
     },
   });
@@ -162,12 +167,22 @@ const Chat = () => {
   const [newgroupMessage, setNewgroupMessage] = useState({
     message: "",
     userId: "",
-    groupId: "",
+    reciverId: "",
   });
 
   const [selectedValuesofCheckbox, setSelectedValuesCheckbox] = useState([]);
 
+  const [userAndGroupsingleMessage, { data: singleMessage }] = useLazyQuery(
+    USER_AND_GROUP_SINGLE_MESSAGE
+  );
+
   const [selectedValuesofForward, setSelectedValuesForward] = useState([]);
+
+  const [fwardMessage, setFwardMessage] = useState({
+    message: "",
+    userId: "",
+    reciverId: [],
+  });
 
   // *** subscripation for real-time update in user and group chat...!!
 
@@ -210,7 +225,7 @@ const Chat = () => {
       setNewgroupMessage({
         message: e.target.value,
         userId: userId,
-        groupId: id,
+        reciverId: id,
       });
     }
   };
@@ -221,10 +236,6 @@ const Chat = () => {
 
   const modelHandleClose = () => setModelShow(false);
   const modelHandleShow = () => setModelShow(true);
-
-  const valueOfChat = (e) => {
-    modelHandleShow();
-  };
 
   // *** reset from on submit...!!
 
@@ -265,6 +276,8 @@ const Chat = () => {
   const handaleCheckbox = (e) => {
     if (e.target.checked) {
       setSelectedValuesCheckbox((preValue) => [...preValue, e.target.value]);
+
+      console.log(selectedValuesofCheckbox);
     } else {
       setSelectedValuesCheckbox((preValue) =>
         preValue.splice(preValue.indexOf(e.target.value), 1)
@@ -304,6 +317,16 @@ const Chat = () => {
   };
 
   //***forward message...!!
+
+  const valueOfChat = (e) => {
+    userAndGroupsingleMessage({
+      variables: {
+        singleMessageId: e.id,
+      },
+    });
+
+    modelHandleShow();
+  };
 
   const forwardMessage = (e) => {
     if (e.target.checked) {
@@ -429,9 +452,7 @@ const Chat = () => {
                                     : ""
                                 }`}
                               >
-                                <ReplyIcon
-                                  onClick={() => valueOfChat(elm.id)}
-                                />
+                                <ReplyIcon onClick={() => valueOfChat(elm)} />
                               </span>
                               <div className="d-flex">
                                 <p
@@ -502,7 +523,16 @@ const Chat = () => {
                           const currentMinute = TIME_AND_DATE.getMinutes();
 
                           return (
-                            <div key={index}>
+                            <div key={index} className="d-flex">
+                              <span
+                                className={`${
+                                  elm.userId.id === userId
+                                    ? "shareIcon d-flex justify-content-end"
+                                    : ""
+                                }`}
+                              >
+                                <ReplyIcon onClick={() => valueOfChat(elm)} />
+                              </span>
                               <div>
                                 <p
                                   className={` ${
@@ -511,7 +541,6 @@ const Chat = () => {
                                       : "chat_message"
                                   } `}
                                 >
-                                  {console.log(elm.userId)}
                                   <span className="groupUserName">
                                     <span>{elm.userId.userName}</span>
                                     <span className="chat_timestamp">{`${currentHour} : ${currentMinute} ${
@@ -564,7 +593,7 @@ const Chat = () => {
         </div>
       ) : (
         <div className="chat d-flex justify-content-center align-content-center">
-           <h1>Click on user to chat</h1>
+          <h1>Click on user to chat</h1>
         </div>
       )}
 
@@ -586,7 +615,12 @@ const Chat = () => {
                 {allUserData?.allUser?.map((elm, index) => {
                   return (
                     <div key={index} className="userData">
-                      <input type="checkbox" className="me-4" />
+                      <input
+                        type="checkbox"
+                        value={elm.id}
+                        onChange={forwardMessage}
+                        className="me-4"
+                      />
                       <div className="userProfile">
                         {" "}
                         <img
@@ -607,7 +641,12 @@ const Chat = () => {
                     {groupData?.userAllGroup?.map((elm, index) => {
                       return (
                         <div key={index} className="userData">
-                          <input type="checkbox" className="me-4" />
+                          <input
+                            type="checkbox"
+                            className="me-4"
+                            value={elm.id}
+                            onChange={forwardMessage}
+                          />
 
                           <div className="userProfile">
                             {" "}

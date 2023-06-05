@@ -32,7 +32,7 @@ export const CREATE_GROUP_MESSAGE_SUBSCRIPATION = gql`
     groupMessageCreated {
       id
       message
-      groupId
+      reciverId
       deleted
     }
   }
