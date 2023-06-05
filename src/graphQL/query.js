@@ -22,7 +22,7 @@ export const GET_USER_BY_ID = gql`
 `;
 
 export const GET_ALL_USER = gql`
-  query Query {
+  query getAllUser {
     allUser {
       id
       userName
@@ -41,6 +41,7 @@ export const GET_ALL_MESSAGE = gql`
       createdAt
       deleted
       isread
+      __typename
       reciverId {
         id
         userName
@@ -75,13 +76,14 @@ export const USER_GROUP = gql`
 // *** find group by id
 
 export const GROUP_BY_ID = gql`
-  query Query($groupId: ID!) {
-    groupbyId(groupId: $groupId) {
+  query GroupbyId($reciverId: ID!) {
+    groupbyId(reciverId: $reciverId) {
+      userName
       member {
         id
         userName
       }
-      userName
+      id
       creator {
         id
         userName
@@ -93,17 +95,38 @@ export const GROUP_BY_ID = gql`
 // *** group all messsage
 
 export const GROUP_ALL_MESSAGE = gql`
-  query Query($groupId: ID!, $userId: ID) {
-    groupAllMessage(groupId: $groupId, userId: $userId) {
+  query Query($reciverId: ID!) {
+    groupAllMessage(reciverId: $reciverId) {
       id
       message
-      groupId {
+      reciverId {
+        id
+        userName
+      }
+      userId {
         id
         userName
       }
       deleted
       createdAt
+      __typename
+    }
+  }
+`;
+
+// *** group and user single message
+
+export const USER_AND_GROUP_SINGLE_MESSAGE = gql`
+  query Query($singleMessageId: ID) {
+    singleMessage(id: $singleMessageId) {
+      id
+      message
+      createdAt
       userId {
+        id
+        userName
+      }
+      reciverId {
         id
         userName
       }
