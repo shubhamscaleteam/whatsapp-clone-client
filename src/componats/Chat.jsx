@@ -39,10 +39,12 @@ import {
   CREATE_MESSAGE_SUBCRIPTION,
   DELETE_GROUP_MESSAGE_SUBSCRIPATION,
   DELETE_MESSAGE_SUBSRIPTION,
+  FORWARD_MESSAGE_SUBSCRIPATION,
   READ_MESSAGE_SUBSCRIPATION,
 } from "../graphQL/subscription";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
+import { FORWARD_MESSAGE } from "../graphQL/mutation";
 
 const Chat = () => {
   const { id } = useParams();
@@ -176,13 +178,18 @@ const Chat = () => {
     USER_AND_GROUP_SINGLE_MESSAGE
   );
 
-  const [selectedValuesofForward, setSelectedValuesForward] = useState([]);
+  const [
+    selectedValuesofForwardUserMessage,
+    setSelectedValuesForwardUserMessage,
+  ] = useState([]);
+  const [
+    selectedValuesofForwardGroupMessage,
+    setSelectedValuesForwardGroupMessage,
+  ] = useState([]);
 
-  const [fwardMessage, setFwardMessage] = useState({
-    message: "",
-    userId: "",
-    reciverId: [],
-  });
+  const [fwardMessage, setFwardMessage] = useState({});
+
+  const [forwardMessageMutation] = useMutation(FORWARD_MESSAGE);
 
   // *** subscripation for real-time update in user and group chat...!!
 
@@ -234,7 +241,9 @@ const Chat = () => {
 
   const [modelShow, setModelShow] = useState(false);
 
-  const modelHandleClose = () => setModelShow(false);
+  const modelHandleClose = () => {
+    setModelShow(false);
+  };
   const modelHandleShow = () => setModelShow(true);
 
   // *** reset from on submit...!!
@@ -276,8 +285,6 @@ const Chat = () => {
   const handaleCheckbox = (e) => {
     if (e.target.checked) {
       setSelectedValuesCheckbox((preValue) => [...preValue, e.target.value]);
-
-      console.log(selectedValuesofCheckbox);
     } else {
       setSelectedValuesCheckbox((preValue) =>
         preValue.splice(preValue.indexOf(e.target.value), 1)
@@ -297,6 +304,7 @@ const Chat = () => {
               input: {
                 messageId: selectedValuesofCheckbox,
                 deletedBy: userId,
+                deletedFrom: id,
               },
             },
           });
@@ -330,12 +338,46 @@ const Chat = () => {
 
   const forwardMessage = (e) => {
     if (e.target.checked) {
-      setSelectedValuesForward((preValue) => [...preValue, e.target.value]);
+      setSelectedValuesForwardUserMessage((preValue) => [
+        ...preValue,
+        e.target.value,
+      ]);
     } else {
-      setSelectedValuesForward((preValue) =>
+      setSelectedValuesForwardUserMessage((preValue) =>
         preValue.splice(preValue.indexOf(e.target.value), 1)
       );
     }
+  };
+
+  const forwardMessage1 = (e) => {
+    if (e.target.checked) {
+      console.log(e.target.value);
+      setSelectedValuesForwardGroupMessage((preValue) => [
+        ...preValue,
+        e.target.value,
+      ]);
+    } else {
+      setSelectedValuesForwardGroupMessage((preValue) =>
+        preValue.splice(preValue.indexOf(e.target.value), 1)
+      );
+    }
+  };
+
+  const fowardHandle = () => {
+    fwardMessage.message = singleMessage.singleMessage.message;
+    fwardMessage.userId = userId;
+    fwardMessage.reciverId = selectedValuesofForwardUserMessage;
+    fwardMessage.groupId = selectedValuesofForwardGroupMessage;
+
+    console.log(fwardMessage);
+
+    forwardMessageMutation({
+      variables: {
+        input: fwardMessage,
+      },
+    });
+
+    modelHandleClose();
   };
 
   // remove same date from userMessage
@@ -645,7 +687,7 @@ const Chat = () => {
                             type="checkbox"
                             className="me-4"
                             value={elm.id}
-                            onChange={forwardMessage}
+                            onChange={forwardMessage1}
                           />
 
                           <div className="userProfile">
@@ -667,7 +709,7 @@ const Chat = () => {
             <Button
               variant="success"
               className="forwardMessageBtn"
-              onClick={modelHandleClose}
+              onClick={fowardHandle}
             >
               <SendIcon />
             </Button>
