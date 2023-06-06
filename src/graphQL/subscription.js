@@ -62,3 +62,11 @@ export const UPDATE_USER_SUBSCRIPATION = gql`
     }
   }
 `;
+
+export const FORWARD_MESSAGE_SUBSCRIPATION = gql`
+  subscription Subscription {
+    fowardMessage {
+      info
+    }
+  }
+`;
